@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:alpine3.22
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: mi_app_db
+    volumes:
+      - db_data:/var/lib/postgresql/data
+  api:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      database_url: postgres://admin:admin@db:5432/mi_app_db
+  web:
+    build: ./frontend
+    ports:
+      - "8083:80"
+    depends_on:
+      - api
+volumes:
+  db_data:
