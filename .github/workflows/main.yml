@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  # El build se sigue haciendo en la nube (para no gastar tu batería)
+  # JOB 1: Build en la nube (GitHub)
   build-and-push:
     runs-on: ubuntu-latest
     steps:
@@ -32,14 +32,24 @@ jobs:
           push: true
           tags: agusm2002/web-test:latest
 
-  # El deploy se hace EN TU DEBIAN (Self-Hosted)
+  # JOB 2: Deploy en TU Debian (M4 ARM64)
   deploy:
     needs: build-and-push
-    runs-on: self-hosted  # <--- ESTO ES LO IMPORTANTE
+    runs-on: self-hosted
     steps:
       - name: Pull y Update
         run: |
-          cd ~/docker/test_agus
-          docker compose pull
-          docker compose up -d
-          docker image prune -f
+          # 1. Entrar a la carpeta (Usamos ruta absoluta)
+          cd /home/agus/docker/test_agus
+          
+          # 2. Bajar las imagenes (Usamos sudo para evitar errores de permisos)
+          sudo docker compose pull
+          
+          # 3. Reiniciar contenedores
+          sudo docker compose up -d
+          
+          # 4. Limpiar imagenes viejas para no llenar el disco de la VM
+          sudo docker image prune -f
+          
+          # 5. Confirmacion en el log
+          sudo docker ps
