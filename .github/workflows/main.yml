@@ -1,10 +1,11 @@
-name: CI para Docker Hub
+name: CI/CD Pipeline Local
 
 on:
   push:
     branches: [ "main" ]
 
 jobs:
+  # El build se sigue haciendo en la nube (para no gastar tu batería)
   build-and-push:
     runs-on: ubuntu-latest
     steps:
@@ -30,3 +31,15 @@ jobs:
           context: ./frontend
           push: true
           tags: agusm2002/web-test:latest
+
+  # El deploy se hace EN TU DEBIAN (Self-Hosted)
+  deploy:
+    needs: build-and-push
+    runs-on: self-hosted  # <--- ESTO ES LO IMPORTANTE
+    steps:
+      - name: Pull y Update
+        run: |
+          cd ~/docker/test_agus
+          docker compose pull
+          docker compose up -d
+          docker image prune -f
