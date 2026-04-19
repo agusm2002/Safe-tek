@@ -37,19 +37,28 @@ jobs:
     needs: build-and-push
     runs-on: self-hosted
     steps:
+      - name: Diagnostico y Permisos
+        run: |
+          echo "Verificando usuario..."
+          whoami
+          echo "Verificando acceso a Docker..."
+          sudo docker ps
+          echo "Verificando existencia de la carpeta..."
+          ls -d /home/agus/docker/test_agus
+
       - name: Pull y Update
         run: |
-          # 1. Entrar a la carpeta (Usamos ruta absoluta)
+          # 1. Entrar a la carpeta
           cd /home/agus/docker/test_agus
           
-          # 2. Bajar las imagenes (Usamos sudo para evitar errores de permisos)
+          # 2. Bajar las imagenes
           sudo docker compose pull
           
           # 3. Reiniciar contenedores
           sudo docker compose up -d
           
-          # 4. Limpiar imagenes viejas para no llenar el disco de la VM
+          # 4. Limpiar imagenes viejas
           sudo docker image prune -f
           
-          # 5. Confirmacion en el log
+          # 5. Confirmacion final
           sudo docker ps
