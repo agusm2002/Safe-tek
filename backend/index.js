@@ -15,7 +15,7 @@ app.get('/', async (req, res) => {
   try {
     const result = await pool.query('SELECT NOW() as la_hora_en_la_db');
     res.json({ 
-      mensaje: "¡Hola! desde el Backend en Docker!",
+      mensaje: "¡Hola!s desde el Backend en Docker!",
       db_status: "Conectada",
       hora_servidor: result.rows[0].la_hora_en_la_db 
     });
