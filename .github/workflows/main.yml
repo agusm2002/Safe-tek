@@ -50,15 +50,18 @@ jobs:
         run: |
           # 1. Entrar a la carpeta
           cd /home/agus/docker/test_agus
+
+          # 2. Crear la red compartida del reverse proxy si no existe
+          sudo docker network inspect company_prod_proxy_network >/dev/null 2>&1 || sudo docker network create company_prod_proxy_network
           
-          # 2. Bajar las imagenes
+          # 3. Bajar las imagenes
           sudo docker compose pull
           
-          # 3. Reiniciar contenedores
+          # 4. Reiniciar contenedores
           sudo docker compose up -d
           
-          # 4. Limpiar imagenes viejas
+          # 5. Limpiar imagenes viejas
           sudo docker image prune -f
           
-          # 5. Confirmacion final
+          # 6. Confirmacion final
           sudo docker ps

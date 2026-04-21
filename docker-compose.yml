@@ -1,6 +1,9 @@
+name: ${COMPOSE_PROJECT_NAME:-safetek_production}
+
 services:
   db:
     image: postgres:alpine3.22
+    container_name: ${CONTAINER_PREFIX:-safetek_prod}_db
     restart: always
     environment:
       POSTGRES_USER: admin
@@ -8,19 +11,45 @@ services:
       POSTGRES_DB: mi_app_db
     volumes:
       - db_data:/var/lib/postgresql/data
+    networks:
+      - safetek_network
+
   api:
     build: ./backend
+    container_name: ${CONTAINER_PREFIX:-safetek_prod}_api
     ports:
-      - "3000:3000"
+      - "${API_HOST_PORT:-3000}:3000"
     depends_on:
       - db
     environment:
       database_url: postgres://admin:admin@db:5432/mi_app_db
+    networks:
+      safetek_network:
+      proxy_network:
+        aliases:
+          - safetek_prod_api
+
   web:
     build: ./frontend
+    container_name: ${CONTAINER_PREFIX:-safetek_prod}_web
     ports:
-      - "8083:80"
+      - "${WEB_HOST_PORT:-8083}:80"
     depends_on:
       - api
+    networks:
+      safetek_network:
+      proxy_network:
+        aliases:
+          - safetek_prod_web
+
 volumes:
   db_data:
+    name: ${DB_VOLUME_NAME:-safetek_prod_db_data}
+
+networks:
+  safetek_network:
+    name: ${NETWORK_NAME:-safetek_prod_network}
+    driver: bridge
+  proxy_network:
+    name: ${PROXY_NETWORK_NAME:-company_prod_proxy_network}
+    external: true
